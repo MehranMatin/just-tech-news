@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { User, Post } = require('../../models');
+const { User, Post, Vote } = require('../../models');
 
 // GET /api/users
 router.get('/', (req, res) => {
@@ -14,7 +14,7 @@ router.get('/', (req, res) => {
         });
 });
 
-// GET /api/users/1
+// GET user by id
 router.get('/:id', (req, res) => {
     User.findOne({
         attributes: { exclude: ['password'] },
@@ -25,6 +25,12 @@ router.get('/:id', (req, res) => {
             {
                 model: Post,
                 attributes: ['id', 'title', 'post_url', 'created_at']
+            },
+            {
+                model: Post,
+                attributes: ['title'],
+                through: Vote,
+                as: 'voted_posts'
             }
         ]
     })
@@ -68,8 +74,6 @@ router.post('/login', (req, res) => {
             return;
         }
 
-        // res.json({ user: dbUserData });
-
         // Verify user
         const validPassword = dbUserData.checkPassword(req.body.password);
         
@@ -106,7 +110,7 @@ router.put('/:id', (req, res) => {
         });
 });
 
-// DELETE /api/users/1
+// DELETE user by id
 router.delete('/:id', (req, res) => {
     User.destroy({
         where: {
