@@ -2,16 +2,7 @@ const router = require('express').Router();
 const { Comment } = require('../../models');
 
 router.get('/', (req, res) => {
-    Comment.findAll({
-        attributes: [
-            'id',
-            'user_id',
-            'post_id',
-            'comment_text',
-            'created_at'
-        ],
-        order: [['created_at', 'DESC']]
-    })
+    Comment.findAll()
         .then(dbCommentData => res.json(dbCommentData))
         .catch(err => {
             console.log(err);
