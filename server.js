@@ -6,14 +6,20 @@ const path = require('path');
 // Express.js server
 const express = require('express');
 // All routes as defined in the controllers folder
-const routes = require('./routes');
+const routes = require('./controllers/');
 // Sequelize connection to database
 const sequelize = require('./config/connection');
 // Handlebars template engine for front-end
 const exphbs = require('express-handlebars');
+// Sequelize store to save the session so the user can remain logged in
+
+// Handlebars helpers
 
 // Initialize handlebars for the html templates, using the custom helpers
 const hbs = exphbs.create({});
+
+// Initialize session with options per best practices.  
+//The secret is defined in the .env file so it is kept secure, along with the mysql login information used in config/connection
 
 // Initialize the server
 const app = express();
@@ -31,13 +37,14 @@ app.set('view engine', 'handlebars');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Tell the app to use Express Session for the session handling
 
-
-
-// turn on routes
+// Give the server the path to the routes
 app.use(routes);
 
-// turn on connection to database and server
+// Turn on connection to db and then to the server
+// force: true to reset the database and clear all values, updating any new relationships
+// force: false to maintain data - aka normal operation
 sequelize.sync({ force: false }).then(() => {
     app.listen(PORT, () => console.log('Now listening'));
 });
