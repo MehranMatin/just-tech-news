@@ -1,5 +1,15 @@
+// Dependencies
+// Express.js connection
 const router = require('express').Router();
+// models
 const { User, Post, Vote, Comment } = require('../../models');
+// Express Session for the session data
+const session = require('express-session');
+// const withAuth
+// Sequelize store to save the session so the user can remain logged in
+const SequelizeStore = require('connect-session-sequelize')(session.Store);
+
+// Routes
 
 // GET /api/users -- get all users
 router.get('/', (req, res) => {
@@ -8,7 +18,9 @@ router.get('/', (req, res) => {
         // when the data is sent back, exclude the password property
         attributes: { exclude: ['password']}
     })
+        // return the data as JSON formatted
         .then(dbUserData => res.json(dbUserData))
+        // if there is a server error, return that error
         .catch(err => {
             console.log(err);
             res.status(500).json(err);
@@ -71,7 +83,15 @@ router.post('/', (req, res) => {
         password: req.body.password
     })
         // send the user data back to the client as confirmation and save the session
-        .then(dbUserData => res.json(dbUserData))
+        .then(dbUserData => {
+            req.session.save(() => {
+                req.session.user_id = dbUserData.id;
+                req.session.username = dbUserData.username;
+                req.session.loggedIn = true;
+
+                res.json(dbUserData);
+            })
+        })
         .catch(err => {
             console.log(err);
             res.status(500).json(err);
@@ -101,8 +121,29 @@ router.post('/login', (req, res) => {
             return;
         }
         // otherwise, save the session, and return the user object and a success message
-        res.json({ user: dbUserData, message: 'You are now logged in!'})
+        req.session.save(() => {
+            // declare session variables
+            req.session.user_id = dbUserData.id;
+            req.session.username = dbUserData.username;
+            req.session.loggedIn = true;
+
+            res.json({ user: dbUserData, message: 'You are now logged in!'});
+        });
     });
+});
+
+// POST /api/users/logout -- logout route an existing user
+router.post('/logout', (req, res) => {
+    if (req.session.loggedIn) {
+        req.session.destroy(() => {
+            // 204 status is that a request has succeeded, but client does not need to go to a different page
+            // (200 indicates success and that a newly updated page should be loaded, 201 is for a resource being created)
+            res.status(204).end();
+        });
+    } else {
+        // if there is no session, then the logout request will send back a no resource found status
+        res.status(404).end();
+    }
 });
 
 // PUT /api/users/1 -- update an existing user

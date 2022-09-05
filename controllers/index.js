@@ -1,7 +1,13 @@
-const router = require('express').Router();
+// An index file to gather the routes to export to the server
 
+// Dependencies
+// Server connection
+const router = require('express').Router();
+// API routes folder
 const apiRoutes = require('./api');
+// The handlebars homepage and single page routes
 const homeRoutes = require('./home-routes');
+// The handlebars dashboard routes
 
 // Define paths for the handlebars html routes
 router.use('/', homeRoutes);

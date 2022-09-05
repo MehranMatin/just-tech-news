@@ -11,8 +11,10 @@ const routes = require('./controllers/');
 const sequelize = require('./config/connection');
 // Handlebars template engine for front-end
 const exphbs = require('express-handlebars');
+// Express session to handle session cookies
+const session = require('express-session');
 // Sequelize store to save the session so the user can remain logged in
-
+const SequelizeStore = require('connect-session-sequelize')(session.Store);
 // Handlebars helpers
 
 // Initialize handlebars for the html templates, using the custom helpers
@@ -20,6 +22,15 @@ const hbs = exphbs.create({});
 
 // Initialize session with options per best practices.  
 //The secret is defined in the .env file so it is kept secure, along with the mysql login information used in config/connection
+const sess = {
+    secret: 'Super secret secret',
+    cookie: {},
+    resave: false,
+    saveUninitialized: true,
+    store: new SequelizeStore({
+        db: sequelize
+    })
+};
 
 // Initialize the server
 const app = express();
@@ -38,6 +49,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Tell the app to use Express Session for the session handling
+app.use(session(sess));
 
 // Give the server the path to the routes
 app.use(routes);

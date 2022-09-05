@@ -1,10 +1,14 @@
 // User facing routes from handlebars
+//Dependencies
+// Router
 const router = require('express').Router();
+// Sequelize and the Post, User, and Comment Models
 const sequelize = require('../config/connection');
 const { Post, User, Comment } = require('../models');
 
 // Route to get the homepage and render all the posts
 router.get('/', (req, res) => {
+    // console.log(req.session);
     // get the posts from the database
     console.log('======================');
     Post.findAll({
@@ -44,6 +48,11 @@ router.get('/', (req, res) => {
 
 // Route to render the login page
 router.get('/login', (req, res) => {
+    if(req.session.loggedIn) {
+        res.redirect('/');
+        return;
+    }
+    
     res.render('login');
 });
 

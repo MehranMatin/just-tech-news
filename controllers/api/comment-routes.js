@@ -1,5 +1,11 @@
+// Dependencies
+// Express.js connection
 const router = require('express').Router();
+// Comment model
 const { Comment } = require('../../models');
+// the authorization middleware to redirect unauthenticated users to the login page
+
+// Routes
 
 // Get comments
 router.get('/', (req, res) => {

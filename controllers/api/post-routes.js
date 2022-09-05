@@ -1,6 +1,13 @@
+// Dependencies
+// Express.js connection
 const router = require('express').Router();
-const sequelize = require('../../config/connection');
+// models
 const { Post, User, Vote, Comment } = require('../../models');
+// Sequelize database connection
+const sequelize = require('../../config/connection');
+// the authorization middleware to redirect unauthenticated users to the login page
+
+// Routes
 
 // GET api/posts/ -- get all posts
 router.get('/', (req, res) => {
@@ -15,7 +22,10 @@ router.get('/', (req, res) => {
             'created_at',
             [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
         ],
+        // Order the posts from most recent to least
         order: [['created_at', 'DESC']],
+        // From the User table, include the post creator's user name
+        // From the Comment table, include all comments
         include: [
             {
                 model: Comment,
@@ -103,7 +113,7 @@ router.post('/', (req, res) => {
 // PUT api/posts/upvote -- upvote a post (this route must be above the update route, otherwise express.js will treat upvote as an id)
 router.put('/upvote', (req, res) => {
     // custom static method created in models/Post.js
-    Post.upvote(req.body, { Vote })
+    Post.upvote({ ...req.body, user_id: req.session.user_id }, { Vote, Comment, User })
         .then(updatedVoteData => res.json(updatedVoteData))
         .catch(err => {
             console.log(err);
