@@ -112,16 +112,21 @@ router.post('/', (req, res) => {
 
 // PUT api/posts/upvote -- upvote a post (this route must be above the update route, otherwise express.js will treat upvote as an id)
 router.put('/upvote', (req, res) => {
-    // custom static method created in models/Post.js
-    Post.upvote({ ...req.body, user_id: req.session.user_id }, { Vote, Comment, User })
-        .then(updatedVoteData => res.json(updatedVoteData))
-        .catch(err => {
-            console.log(err);
-            res.status(400).json(err);
-        });
+    // make sure the session exists first
+    if (req.session) {
+        // pass the session user id along with the req.body properties (destructured) to the model method created in Post.js for upvotes
+        Post.upvote({ ...req.body, user_id: req.session.user_id }, { Vote, Comment, User })
+            // return the data (lines changed)
+            .then(updatedVoteData => res.json(updatedVoteData))
+            // or an error if one occurs
+            .catch(err => {
+                console.log(err);
+                res.status(500).json(err);
+            });
+    }
 });
 
-// PUT api/posts/1-- update a post's title
+// PUT api/posts/1 -- update a post's title
 router.put('/:id', (req, res) => {
     Post.update(
         {
@@ -146,7 +151,7 @@ router.put('/:id', (req, res) => {
         });
 });
 
-// delete a post
+// DELETE api/posts/1 -- a single post
 router.delete('/:id', (req, res) => {
     Post.destroy({
         where: {
