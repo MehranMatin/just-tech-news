@@ -48,6 +48,7 @@ router.get('/', (req, res) => {
         });
 });
 
+// Route to render a single post page using Sequelize findOne route
 router.get('/post/:id', (req, res) => {
     // const post = {
     //     id: 1,
@@ -60,7 +61,7 @@ router.get('/post/:id', (req, res) => {
     //         username: 'test_user'
     //     }
     // };
-
+    // 
     // res.render('single-post', { post });
 
     Post.findOne({
@@ -121,4 +122,5 @@ router.get('/login', (req, res) => {
     res.render('login');
 });
 
+// Export the router
 module.exports = router;
