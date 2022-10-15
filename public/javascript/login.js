@@ -52,7 +52,7 @@ async function loginFormHandler(event) {
         // if the response is good, load the dashboard
         // if there is an error, alert with the status
         if (response.ok) {
-            document.location.replace('/');
+            document.location.replace('/dashboard');
         } else {
             alert(response.statusText);
         }
