@@ -4,6 +4,7 @@ const router = require('express').Router();
 // Comment model
 const { Comment } = require('../../models');
 // the authorization middleware to redirect unauthenticated users to the login page
+const withAuth = require('../../utils/auth');
 
 // Routes
 
@@ -20,7 +21,7 @@ router.get('/', (req, res) => {
 });
 
 // Post a new comment
-router.post('/', (req, res) => {
+router.post('/',withAuth, (req, res) => {
     // check the session
     if (req.session) {
         // expects => {comment_text: "This is the comment", user_id: 1, post_id: 2}
@@ -38,7 +39,7 @@ router.post('/', (req, res) => {
 });
 
 // Delete a comment
-router.delete('/:id', (req, res) => {
+router.delete('/:id', withAuth, (req, res) => {
     Comment.destroy({
         where: {
             id: req.params.id

@@ -5,7 +5,8 @@ const router = require('express').Router();
 const { User, Post, Vote, Comment } = require('../../models');
 // Express Session for the session data
 const session = require('express-session');
-// const withAuth
+// the authorization middleware to redirect unauthenticated users to the login page
+const withAuth = require('../../utils/auth');
 // Sequelize store to save the session so the user can remain logged in
 const SequelizeStore = require('connect-session-sequelize')(session.Store);
 
@@ -133,7 +134,7 @@ router.post('/login', (req, res) => {
 });
 
 // POST /api/users/logout -- logout route an existing user
-router.post('/logout', (req, res) => {
+router.post('/logout', withAuth, (req, res) => {
     if (req.session.loggedIn) {
         req.session.destroy(() => {
             // 204 status is that a request has succeeded, but client does not need to go to a different page
@@ -147,7 +148,7 @@ router.post('/logout', (req, res) => {
 });
 
 // PUT /api/users/1 -- update an existing user
-router.put('/:id', (req, res) => {
+router.put('/:id', withAuth, (req, res) => {
     // update method
     // expects {username: 'Lernantino', email: 'lernantino@gmail.com', password: 'password1234'}
   
@@ -176,7 +177,7 @@ router.put('/:id', (req, res) => {
 });
 
 // DELETE /api/users/1 -- delete an existing user
-router.delete('/:id', (req, res) => {
+router.delete('/:id', withAuth, (req, res) => {
     User.destroy({
         where: {
             id: req.params.id
